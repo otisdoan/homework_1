@@ -9,7 +9,8 @@ A modern e-commerce platform built with Next.js, TypeScript, Prisma, and Postgre
 - **Type Safety**: Built with TypeScript for better development experience
 - **Database Integration**: PostgreSQL with Prisma ORM
 - **Form Validation**: Client and server-side validation with Zod
-- **Image Support**: Optional product images via URL
+- **Image Upload**: Upload images directly to Cloudinary with drag & drop
+- **Image Support**: Optional product images via URL or file upload
 
 ## Tech Stack
 
@@ -17,7 +18,7 @@ A modern e-commerce platform built with Next.js, TypeScript, Prisma, and Postgre
 - **Styling**: Tailwind CSS
 - **Database**: PostgreSQL with Prisma ORM
 - **Validation**: Zod with React Hook Form
-- **Icons**: Lucide React
+- **Image Upload**: Cloudinary integration for image storage
 - **Deployment**: Vercel
 
 ## Getting Started
@@ -49,13 +50,25 @@ npm install
 cp env.example .env.local
 ```
 
-4. Update the `DATABASE_URL` in `.env.local` with your PostgreSQL connection string:
+4. Update the environment variables in `.env.local`:
 
-```
+```bash
+# Database
 DATABASE_URL="postgresql://username:password@localhost:5432/ecommerce_db"
+
+# Cloudinary (for image uploads)
+CLOUDINARY_CLOUD_NAME="your_cloud_name"
+CLOUDINARY_API_KEY="your_api_key"
+CLOUDINARY_API_SECRET="your_api_secret"
 ```
 
-5. Set up the database:
+**Cloudinary Setup:**
+
+1. Go to [Cloudinary.com](https://cloudinary.com) and create a free account
+2. Go to Dashboard and copy your Cloud Name, API Key, and API Secret
+3. Replace the values in `.env.local` with your actual Cloudinary credentials
+
+4. Set up the database:
 
 ```bash
 npx prisma generate

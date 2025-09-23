@@ -2,13 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { CreateProductData } from "@/types/product";
 
-// GET /api/products - List all products
 export async function GET() {
   try {
-    const products = await prisma.product.findMany({
-      orderBy: { createdAt: "desc" },
-    });
-    return NextResponse.json(products);
+    const productsList = await prisma.products.findMany();
+    return NextResponse.json(productsList);
   } catch (error) {
     console.error("Error fetching products:", error);
     return NextResponse.json(
@@ -18,7 +15,6 @@ export async function GET() {
   }
 }
 
-// POST /api/products - Create a new product
 export async function POST(request: NextRequest) {
   try {
     const body: CreateProductData = await request.json();
@@ -39,7 +35,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const product = await prisma.product.create({
+    const product = await prisma.products.create({
       data: {
         name: body.name,
         description: body.description,

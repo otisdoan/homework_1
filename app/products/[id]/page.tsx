@@ -8,10 +8,18 @@ import { Product } from "@/types/product";
 import { ArrowLeft, Edit, Trash2 } from "lucide-react";
 
 interface ProductDetailPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default function ProductDetailPage({ params }: ProductDetailPageProps) {
+export default async function ProductDetailPage({
+  params,
+}: ProductDetailPageProps) {
+  const { id } = await params;
+
+  return <ProductDetailClient productId={id} />;
+}
+
+function ProductDetailClient({ productId }: { productId: string }) {
   const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -19,11 +27,11 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
 
   useEffect(() => {
     fetchProduct();
-  }, [params.id]);
+  }, [productId]);
 
   const fetchProduct = async () => {
     try {
-      const response = await fetch(`/api/products/${params.id}`);
+      const response = await fetch(`/api/products/${productId}`);
       if (!response.ok) {
         if (response.status === 404) {
           throw new Error("Product not found");

@@ -5,11 +5,12 @@ import { UpdateProductData } from "@/types/product";
 // GET /api/products/[id] - Get a single product
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const product = await prisma.product.findUnique({
-      where: { id: params.id },
+    const { id } = await params;
+    const product = await prisma.products.findUnique({
+      where: { id: parseInt(id) },
     });
 
     if (!product) {
@@ -29,14 +30,15 @@ export async function GET(
 // PUT /api/products/[id] - Update a product
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body: UpdateProductData = await request.json();
 
     // Check if product exists
-    const existingProduct = await prisma.product.findUnique({
-      where: { id: params.id },
+    const existingProduct = await prisma.products.findUnique({
+      where: { id: parseInt(id) },
     });
 
     if (!existingProduct) {
@@ -51,8 +53,8 @@ export async function PUT(
       );
     }
 
-    const product = await prisma.product.update({
-      where: { id: params.id },
+    const product = await prisma.products.update({
+      where: { id: parseInt(id) },
       data: {
         ...(body.name && { name: body.name }),
         ...(body.description && { description: body.description }),
@@ -74,20 +76,22 @@ export async function PUT(
 // DELETE /api/products/[id] - Delete a product
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+
     // Check if product exists
-    const existingProduct = await prisma.product.findUnique({
-      where: { id: params.id },
+    const existingProduct = await prisma.products.findUnique({
+      where: { id: parseInt(id) },
     });
 
     if (!existingProduct) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    await prisma.product.delete({
-      where: { id: params.id },
+    await prisma.products.delete({
+      where: { id: parseInt(id) },
     });
 
     return NextResponse.json({ message: "Product deleted successfully" });

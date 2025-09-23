@@ -6,6 +6,7 @@ import { Product, CreateProductData, UpdateProductData } from "@/types/product";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import ImageUpload from "@/components/ui/ImageUpload";
 
 const productSchema = z.object({
   name: z
@@ -17,7 +18,6 @@ const productSchema = z.object({
     .min(1, "Description is required")
     .min(10, "Description must be at least 10 characters"),
   price: z.number().min(0, "Price must be a positive number"),
-  image: z.string().url("Must be a valid URL").optional().or(z.literal("")),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -34,6 +34,7 @@ export default function ProductForm({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string>("");
 
   const {
     register,
@@ -46,7 +47,6 @@ export default function ProductForm({
       name: product?.name || "",
       description: product?.description || "",
       price: product?.price || 0,
-      image: product?.image || "",
     },
   });
 
@@ -56,8 +56,8 @@ export default function ProductForm({
         name: product.name,
         description: product.description,
         price: product.price,
-        image: product.image || "",
       });
+      setImageUrl(product.image || "");
     }
   }, [product, reset]);
 
@@ -76,7 +76,7 @@ export default function ProductForm({
         },
         body: JSON.stringify({
           ...data,
-          image: data.image || undefined,
+          image: imageUrl || undefined,
         }),
       });
 
@@ -118,7 +118,7 @@ export default function ProductForm({
               {...register("name")}
               type="text"
               id="name"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
               placeholder="Enter product name"
             />
             {errors.name && (
@@ -137,7 +137,7 @@ export default function ProductForm({
               {...register("description")}
               id="description"
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
               placeholder="Enter product description"
             />
             {errors.description && (
@@ -160,7 +160,7 @@ export default function ProductForm({
               id="price"
               step="0.01"
               min="0"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
               placeholder="0.00"
             />
             {errors.price && (
@@ -171,24 +171,14 @@ export default function ProductForm({
           </div>
 
           <div>
-            <label
-              htmlFor="image"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Image URL (optional)
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Product Image
             </label>
-            <input
-              {...register("image")}
-              type="url"
-              id="image"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="https://example.com/image.jpg"
+            <ImageUpload
+              value={imageUrl}
+              onChange={setImageUrl}
+              disabled={loading}
             />
-            {errors.image && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.image.message}
-              </p>
-            )}
           </div>
 
           <div className="flex space-x-4">

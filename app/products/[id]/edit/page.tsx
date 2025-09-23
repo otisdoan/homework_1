@@ -6,10 +6,18 @@ import { Product } from "@/types/product";
 import ProductForm from "@/components/forms/ProductForm";
 
 interface EditProductPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default function EditProductPage({ params }: EditProductPageProps) {
+export default async function EditProductPage({
+  params,
+}: EditProductPageProps) {
+  const { id } = await params;
+
+  return <EditProductClient productId={id} />;
+}
+
+function EditProductClient({ productId }: { productId: string }) {
   const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -17,11 +25,11 @@ export default function EditProductPage({ params }: EditProductPageProps) {
 
   useEffect(() => {
     fetchProduct();
-  }, [params.id]);
+  }, [productId]);
 
   const fetchProduct = async () => {
     try {
-      const response = await fetch(`/api/products/${params.id}`);
+      const response = await fetch(`/api/products/${productId}`);
       if (!response.ok) {
         if (response.status === 404) {
           throw new Error("Product not found");
