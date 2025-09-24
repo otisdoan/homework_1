@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ShoppingBag, Plus, Home, Package } from "lucide-react";
+import { ShoppingBag, Plus, Home, Package, Search } from "lucide-react";
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -10,6 +10,7 @@ export default function Navigation() {
   const navItems = [
     { href: "/", label: "Home", icon: Home },
     { href: "/products/new", label: "Add Product", icon: Plus },
+    { href: "/search-demo", label: "Search Demo", icon: Search },
   ];
 
   return (

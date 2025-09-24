@@ -6,15 +6,108 @@ import { Trash2, Edit, Eye, Heart } from "lucide-react";
 interface ProductCardProps {
   product: Product;
   onDelete?: (id: string) => void;
+  viewMode?: "grid" | "list";
 }
 
-export default function ProductCard({ product, onDelete }: ProductCardProps) {
+export default function ProductCard({
+  product,
+  onDelete,
+  viewMode = "grid",
+}: ProductCardProps) {
   const handleDelete = () => {
     if (onDelete && confirm("Are you sure you want to delete this product?")) {
       onDelete(product.id);
     }
   };
 
+  if (viewMode === "list") {
+    return (
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 flex">
+        <div className="relative w-48 h-32 flex-shrink-0">
+          {product.image ? (
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-gray-400 text-2xl mb-1">📦</div>
+                <span className="text-gray-400 text-xs">No image</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="flex-1 p-6">
+          <div className="flex justify-between items-start mb-3">
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2 hover:text-blue-600 transition-colors">
+                {product.name}
+              </h3>
+              <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed mb-3">
+                {product.description}
+              </p>
+            </div>
+
+            <div className="flex items-center space-x-2 ml-4">
+              <Link
+                href={`/products/${product.id}`}
+                className="bg-blue-100 text-blue-600 p-2 rounded-lg hover:bg-blue-200 transition-colors"
+                title="View details"
+              >
+                <Eye className="h-4 w-4" />
+              </Link>
+              <Link
+                href={`/products/${product.id}/edit`}
+                className="bg-gray-100 text-gray-700 p-2 rounded-lg hover:bg-gray-200 transition-colors"
+                title="Edit product"
+              >
+                <Edit className="h-4 w-4" />
+              </Link>
+              {onDelete && (
+                <button
+                  onClick={handleDelete}
+                  className="bg-red-100 text-red-600 p-2 rounded-lg hover:bg-red-200 transition-colors"
+                  title="Delete product"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <span className="text-xl font-bold text-blue-600">
+                ${product.price}
+              </span>
+              <span className="text-sm text-gray-500 line-through">$99.99</span>
+            </div>
+
+            <div className="flex items-center space-x-1">
+              <div className="flex text-yellow-400">
+                {[...Array(5)].map((_, i) => (
+                  <span key={i} className="text-sm">
+                    ★
+                  </span>
+                ))}
+              </div>
+              <span className="text-xs text-gray-500 ml-1">(4.8)</span>
+            </div>
+          </div>
+
+          <div className="mt-3 text-xs text-gray-500">
+            <p>Added {new Date(product.createdAt).toLocaleDateString()}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Grid view (default)
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group">
       <div className="relative overflow-hidden">

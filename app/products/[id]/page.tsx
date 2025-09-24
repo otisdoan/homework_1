@@ -155,7 +155,7 @@ function ProductDetailClient({ productId }: { productId: string }) {
 
               <div className="mb-6">
                 <span className="text-3xl font-bold text-blue-600">
-                  ${product.price.toFixed(2)}
+                  ${product.price}
                 </span>
               </div>
 

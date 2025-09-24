@@ -3,11 +3,17 @@
 import { useEffect, useState } from "react";
 import { Product } from "@/types/product";
 import ProductCard from "@/components/ui/ProductCard";
+import SearchFilter from "@/components/ui/SearchFilter";
+import ProductGrid from "@/components/ui/ProductGrid";
+import SimplePagination from "@/components/ui/SimplePagination";
 import { Plus, Star, TrendingUp, Users, Package } from "lucide-react";
 import Link from "next/link";
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(12);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,6 +29,7 @@ export default function Home() {
       }
       const data = await response.json();
       setProducts(data);
+      setFilteredProducts(data); // Initialize filtered products
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
@@ -41,10 +48,28 @@ export default function Home() {
       }
 
       setProducts(products.filter((product) => product.id !== id));
+      setFilteredProducts(
+        filteredProducts.filter((product) => product.id !== id)
+      );
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to delete product");
     }
   };
+
+  const handleFilteredProducts = (filtered: Product[]) => {
+    setFilteredProducts(filtered);
+    setCurrentPage(1); // Reset to first page when filtering
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentProducts = filteredProducts.slice(startIndex, endIndex);
 
   if (loading) {
     return (
@@ -165,36 +190,58 @@ export default function Home() {
             </Link>
           </div>
 
-          {products.length === 0 ? (
+          {/* Search and Filter */}
+          <SearchFilter
+            products={products}
+            onFilteredProducts={handleFilteredProducts}
+          />
+
+          {filteredProducts.length === 0 ? (
             <div className="text-center py-16 bg-white rounded-xl shadow-lg">
               <div className="bg-gray-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Package className="h-12 w-12 text-gray-400" />
               </div>
               <h3 className="text-2xl font-semibold text-gray-700 mb-4">
-                No Products Yet
+                {products.length === 0
+                  ? "No Products Yet"
+                  : "No Products Found"}
               </h3>
               <p className="text-gray-500 mb-8 max-w-md mx-auto">
-                Start building your store by adding your first product. It's
-                easy and takes just a few minutes!
+                {products.length === 0
+                  ? "Start building your store by adding your first product. It's easy and takes just a few minutes!"
+                  : "Try adjusting your search criteria or filters to find what you're looking for."}
               </p>
-              <Link
-                href="/products/new"
-                className="inline-flex items-center space-x-2 bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition-colors font-semibold text-lg shadow-lg"
-              >
-                <Plus className="h-6 w-6" />
-                <span>Add Your First Product</span>
-              </Link>
+              {products.length === 0 && (
+                <Link
+                  href="/products/new"
+                  className="inline-flex items-center space-x-2 bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition-colors font-semibold text-lg shadow-lg"
+                >
+                  <Plus className="h-6 w-6" />
+                  <span>Add Your First Product</span>
+                </Link>
+              )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {products.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onDelete={handleDelete}
-                />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {currentProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </div>
+
+              {/* Pagination */}
+              <SimplePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                totalItems={filteredProducts.length}
+                itemsPerPage={itemsPerPage}
+              />
+            </>
           )}
         </div>
 
