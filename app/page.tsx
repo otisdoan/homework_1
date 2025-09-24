@@ -16,20 +16,36 @@ export default function Home() {
   const [itemsPerPage] = useState(12);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [isFiltering, setIsFiltering] = useState(false);
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
+  useEffect(() => {
+    if (!isFiltering) {
+      fetchProducts();
+    }
+  }, [currentPage]);
+
   const fetchProducts = async () => {
     try {
-      const response = await fetch("/api/products");
+      setLoading(true);
+      const response = await fetch(
+        `/api/products?page=${currentPage}&limit=${itemsPerPage}`
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch products");
       }
       const data = await response.json();
-      setProducts(data);
-      setFilteredProducts(data); // Initialize filtered products
+      setProducts(data.products);
+      if (!isFiltering) {
+        setFilteredProducts(data.products);
+      }
+      setTotalPages(data.pagination.totalPages);
+      setTotalCount(data.pagination.totalCount);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
@@ -58,6 +74,7 @@ export default function Home() {
 
   const handleFilteredProducts = (filtered: Product[]) => {
     setFilteredProducts(filtered);
+    setIsFiltering(filtered.length !== products.length);
     setCurrentPage(1); // Reset to first page when filtering
   };
 
@@ -65,11 +82,24 @@ export default function Home() {
     setCurrentPage(page);
   };
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  // For filtered products, we'll use client-side pagination
+  // For unfiltered products, we use server-side pagination
+
+  let displayProducts = products;
+  let displayTotalPages = totalPages;
+  let displayTotalCount = totalCount;
+
+  if (isFiltering) {
+    displayProducts = filteredProducts;
+    displayTotalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+    displayTotalCount = filteredProducts.length;
+  }
+
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentProducts = filteredProducts.slice(startIndex, endIndex);
+  const currentProducts = isFiltering
+    ? filteredProducts.slice(startIndex, endIndex)
+    : products; // Use products directly from API (already paginated)
 
   if (loading) {
     return (
@@ -148,7 +178,7 @@ export default function Home() {
               <Package className="h-8 w-8 text-blue-600" />
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-2">
-              {products.length}
+              {totalCount}
             </h3>
             <p className="text-gray-600">Total Products</p>
           </div>
@@ -202,16 +232,14 @@ export default function Home() {
                 <Package className="h-12 w-12 text-gray-400" />
               </div>
               <h3 className="text-2xl font-semibold text-gray-700 mb-4">
-                {products.length === 0
-                  ? "No Products Yet"
-                  : "No Products Found"}
+                {totalCount === 0 ? "No Products Yet" : "No Products Found"}
               </h3>
               <p className="text-gray-500 mb-8 max-w-md mx-auto">
-                {products.length === 0
+                {totalCount === 0
                   ? "Start building your store by adding your first product. It's easy and takes just a few minutes!"
                   : "Try adjusting your search criteria or filters to find what you're looking for."}
               </p>
-              {products.length === 0 && (
+              {totalCount === 0 && (
                 <Link
                   href="/products/new"
                   className="inline-flex items-center space-x-2 bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition-colors font-semibold text-lg shadow-lg"
@@ -236,9 +264,9 @@ export default function Home() {
               {/* Pagination */}
               <SimplePagination
                 currentPage={currentPage}
-                totalPages={totalPages}
+                totalPages={isFiltering ? displayTotalPages : totalPages}
                 onPageChange={handlePageChange}
-                totalItems={filteredProducts.length}
+                totalItems={isFiltering ? displayTotalCount : totalCount}
                 itemsPerPage={itemsPerPage}
               />
             </>

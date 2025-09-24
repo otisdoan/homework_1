@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@/types/product";
 import { Trash2, Edit, Eye, Heart } from "lucide-react";
+import { formatVND } from "@/lib/currency";
 
 interface ProductCardProps {
   product: Product;
@@ -79,12 +80,14 @@ export default function ProductCard({
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="space-y-2">
             <div className="flex items-center space-x-2">
               <span className="text-xl font-bold text-blue-600">
-                ${product.price}
+                {formatVND(product.price)}
               </span>
-              <span className="text-sm text-gray-500 line-through">$99.99</span>
+              <span className="text-sm text-gray-500 line-through">
+                2,399,760₫
+              </span>
             </div>
 
             <div className="flex items-center space-x-1">
@@ -159,12 +162,14 @@ export default function ProductCard({
           </p>
         </div>
 
-        <div className="flex items-center justify-between mb-4">
+        <div className="space-y-3 mb-4">
           <div className="flex items-center space-x-2">
             <span className="text-2xl font-bold text-blue-600">
-              ${product.price}
+              {formatVND(product.price)}
             </span>
-            <span className="text-sm text-gray-500 line-through">$99.99</span>
+            <span className="text-sm text-gray-500 line-through">
+              2,399,760₫
+            </span>
           </div>
 
           <div className="flex items-center space-x-1">
