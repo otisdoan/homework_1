@@ -2,10 +2,37 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ShoppingBag, Plus, Home, Package, Search } from "lucide-react";
+import {
+  ShoppingBag,
+  Plus,
+  Home,
+  Package,
+  Search,
+  LogIn,
+  LogOut,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function Navigation() {
   const pathname = usePathname();
+  const [isAuthed, setIsAuthed] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const check = async () => {
+      try {
+        const res = await fetch("/api/auth/me", { cache: "no-store" });
+        const data = await res.json();
+        if (!cancelled) setIsAuthed(Boolean(data?.authenticated));
+      } catch {
+        if (!cancelled) setIsAuthed(false);
+      }
+    };
+    check();
+    return () => {
+      cancelled = true;
+    };
+  }, [pathname]);
 
   const navItems = [
     { href: "/", label: "Home", icon: Home },
@@ -60,6 +87,31 @@ export default function Navigation() {
                   0
                 </span>
               </button>
+            </div>
+
+            {/* Auth */}
+            <div className="ml-2">
+              {isAuthed ? (
+                <button
+                  onClick={async () => {
+                    await fetch("/api/auth/logout", { method: "POST" });
+                    setIsAuthed(false);
+                    window.location.href = "/auth/login";
+                  }}
+                  className="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="hidden sm:block">Logout</span>
+                </button>
+              ) : (
+                <Link
+                  href="/auth/login"
+                  className="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                >
+                  <LogIn className="h-4 w-4" />
+                  <span className="hidden sm:block">Login</span>
+                </Link>
+              )}
             </div>
           </div>
         </div>

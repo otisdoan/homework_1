@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Product } from "@/types/product";
 import { Trash2, Edit, Eye, Heart } from "lucide-react";
 import { formatVND } from "@/lib/currency";
@@ -15,6 +16,12 @@ export default function ProductCard({
   onDelete,
   viewMode = "grid",
 }: ProductCardProps) {
+  const [isAuthed, setIsAuthed] = useState(false);
+  useEffect(() => {
+    setIsAuthed(
+      typeof document !== "undefined" && document.cookie.includes("token=")
+    );
+  }, []);
   const handleDelete = () => {
     if (onDelete && confirm("Are you sure you want to delete this product?")) {
       onDelete(product.id);
@@ -61,14 +68,16 @@ export default function ProductCard({
               >
                 <Eye className="h-4 w-4" />
               </Link>
-              <Link
-                href={`/products/${product.id}/edit`}
-                className="bg-gray-100 text-gray-700 p-2 rounded-lg hover:bg-gray-200 transition-colors"
-                title="Edit product"
-              >
-                <Edit className="h-4 w-4" />
-              </Link>
-              {onDelete && (
+              {isAuthed && (
+                <Link
+                  href={`/products/${product.id}/edit`}
+                  className="bg-gray-100 text-gray-700 p-2 rounded-lg hover:bg-gray-200 transition-colors"
+                  title="Edit product"
+                >
+                  <Edit className="h-4 w-4" />
+                </Link>
+              )}
+              {onDelete && isAuthed && (
                 <button
                   onClick={handleDelete}
                   className="bg-red-100 text-red-600 p-2 rounded-lg hover:bg-red-200 transition-colors"

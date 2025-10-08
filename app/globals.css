@@ -25,6 +25,15 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Ensure input text is black for readability */
+@layer base {
+  input,
+  select,
+  textarea {
+    color: #000000;
+  }
+}
+
 /* Custom styles for better UX */
 @layer utilities {
   .line-clamp-2 {
