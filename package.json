@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@payos/node": "^2.0.3",
     "@prisma/client": "^6.16.2",
     "@types/pg": "^8.15.5",
     "bcryptjs": "^3.0.2",

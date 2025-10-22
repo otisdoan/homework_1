@@ -2,8 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Product } from "@/types/product";
-import { Trash2, Edit, Eye, Heart } from "lucide-react";
+import { Trash2, Edit, Eye, Heart, ShoppingCart } from "lucide-react";
 import { formatVND } from "@/lib/currency";
+import { useCart } from "@/contexts/CartContext";
 
 interface ProductCardProps {
   product: Product;
@@ -17,11 +18,24 @@ export default function ProductCard({
   viewMode = "grid",
 }: ProductCardProps) {
   const [isAuthed, setIsAuthed] = useState(false);
+  const { addToCart, loading } = useCart();
+
   useEffect(() => {
     setIsAuthed(
       typeof document !== "undefined" && document.cookie.includes("token=")
     );
   }, []);
+
+  const handleAddToCart = async () => {
+    try {
+      await addToCart({
+        productId: product.id,
+        quantity: 1,
+      });
+    } catch (error) {
+      console.error("Failed to add to cart:", error);
+    }
+  };
   const handleDelete = () => {
     if (onDelete && confirm("Are you sure you want to delete this product?")) {
       onDelete(product.id);
@@ -95,7 +109,7 @@ export default function ProductCard({
                 {formatVND(product.price)}
               </span>
               <span className="text-sm text-gray-500 line-through">
-                2,399,760₫
+                2.399.760 VND
               </span>
             </div>
 
@@ -177,7 +191,7 @@ export default function ProductCard({
               {formatVND(product.price)}
             </span>
             <span className="text-sm text-gray-500 line-through">
-              2,399,760₫
+              2.399.760 VND
             </span>
           </div>
 
@@ -194,22 +208,34 @@ export default function ProductCard({
         </div>
 
         <div className="flex space-x-2">
+          <button
+            onClick={handleAddToCart}
+            disabled={loading}
+            className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors text-center font-medium text-sm flex items-center justify-center space-x-1"
+          >
+            <ShoppingCart className="h-4 w-4" />
+            <span>Add to Cart</span>
+          </button>
+
           <Link
             href={`/products/${product.id}`}
-            className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-center font-medium text-sm"
+            className="bg-blue-100 text-blue-600 p-2 rounded-lg hover:bg-blue-200 transition-colors"
+            title="View details"
           >
-            View Details
+            <Eye className="h-4 w-4" />
           </Link>
 
-          <Link
-            href={`/products/${product.id}/edit`}
-            className="bg-gray-100 text-gray-700 p-2 rounded-lg hover:bg-gray-200 transition-colors"
-            title="Edit product"
-          >
-            <Edit className="h-4 w-4" />
-          </Link>
+          {isAuthed && (
+            <Link
+              href={`/products/${product.id}/edit`}
+              className="bg-gray-100 text-gray-700 p-2 rounded-lg hover:bg-gray-200 transition-colors"
+              title="Edit product"
+            >
+              <Edit className="h-4 w-4" />
+            </Link>
+          )}
 
-          {onDelete && (
+          {onDelete && isAuthed && (
             <button
               onClick={handleDelete}
               className="bg-red-100 text-red-600 p-2 rounded-lg hover:bg-red-200 transition-colors"

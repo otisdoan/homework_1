@@ -57,7 +57,11 @@ export default function Footer() {
   ];
 
   const features = [
-    { icon: Truck, text: "Free Shipping", subtext: "On orders over $50" },
+    {
+      icon: Truck,
+      text: "Free Shipping",
+      subtext: "On orders over 1.200.000 VND",
+    },
     {
       icon: CreditCard,
       text: "Secure Payment",

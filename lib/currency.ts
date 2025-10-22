@@ -3,10 +3,10 @@
  */
 
 /**
- * Format VND price with comma separators
+ * Format VND price with dot separators (Vietnamese format)
  * @param vndPrice - Price in VND
- * @returns Formatted price string with ₫ symbol
+ * @returns Formatted price string with VND suffix
  */
 export function formatVND(vndPrice: number): string {
-  return `${vndPrice.toLocaleString("en-US")}₫`;
+  return `${vndPrice.toLocaleString("vi-VN")} VND`;
 }

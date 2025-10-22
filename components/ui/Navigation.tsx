@@ -10,12 +10,15 @@ import {
   Search,
   LogIn,
   LogOut,
+  ShoppingCart,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useCart } from "@/contexts/CartContext";
 
 export default function Navigation() {
   const pathname = usePathname();
   const [isAuthed, setIsAuthed] = useState(false);
+  const { cart } = useCart();
 
   useEffect(() => {
     let cancelled = false;
@@ -35,7 +38,7 @@ export default function Navigation() {
   }, [pathname]);
 
   const navItems = [
-    { href: "/", label: "Home", icon: Home },
+    { href: "/products", label: "Products", icon: Package },
     { href: "/products/new", label: "Add Product", icon: Plus },
     { href: "/search-demo", label: "Search Demo", icon: Search },
   ];
@@ -45,7 +48,10 @@ export default function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-3 group">
+            <Link
+              href="/products"
+              className="flex items-center space-x-3 group"
+            >
               <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2 rounded-lg group-hover:scale-110 transition-transform duration-300">
                 <ShoppingBag className="h-6 w-6 text-white" />
               </div>
@@ -81,12 +87,17 @@ export default function Navigation() {
 
             {/* Cart indicator */}
             <div className="ml-4 relative">
-              <button className="bg-gray-100 text-gray-600 p-2 rounded-lg hover:bg-gray-200 transition-colors relative">
-                <Package className="h-4 w-4" />
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  0
-                </span>
-              </button>
+              <Link
+                href="/cart"
+                className="bg-gray-100 text-gray-600 p-2 rounded-lg hover:bg-gray-200 transition-colors relative"
+              >
+                <ShoppingCart className="h-4 w-4" />
+                {cart.itemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {cart.itemCount}
+                  </span>
+                )}
+              </Link>
             </div>
 
             {/* Auth */}
