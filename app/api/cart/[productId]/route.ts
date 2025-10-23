@@ -21,7 +21,7 @@ async function getUserId(request: NextRequest): Promise<string | null> {
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { productId: string } }
+  { params }: { params: Promise<{ productId: string }> }
 ) {
   try {
     const userId = await getUserId(request);
@@ -29,6 +29,7 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { productId } = await params;
     const { quantity } = await request.json();
 
     if (quantity < 1) {
@@ -51,7 +52,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { productId: string } }
+  { params }: { params: Promise<{ productId: string }> }
 ) {
   try {
     const userId = await getUserId(request);
@@ -59,6 +60,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { productId } = await params;
     // Remove cart item (client-side implementation)
     return NextResponse.json({ success: true });
   } catch (error) {
